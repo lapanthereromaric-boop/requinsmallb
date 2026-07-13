@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requinmall - Boutique Privée Internationale</title>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --primary: #0a192f;
+            --accent: #00d2ff;
+            --gold: #d4af37;
+            --text: #e2e8f0;
+            --whatsapp: #25D366;
+            --card-bg: #172a45;
+            --border: #233554;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at center, #112240 0%, #0a192f 100%);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: rgba(10, 25, 47, 0.9);
+            border-bottom: 2px solid var(--accent);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            sticky: top;
+            backdrop-filter: blur(10px);
+        }
+        .header-logo { font-size: 24px; font-weight: bold; color: white; letter-spacing: 2px; }
+        .cart-icon { position: relative; cursor: pointer; color: var(--accent); }
+        .cart-count {
+            position: absolute; top: -8px; right: -8px; background: red;
+            color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%;
+        }
+        .main-layout {
+            max-width: 1200px; margin: 40px auto; padding: 0 20px;
+            display: grid; grid-template-columns: 320px 1fr; gap: 30px;
+        }
+        @media (max-width: 900px) {
+            .main-layout { grid-template-columns: 1fr; }
+        }
+        .admin-panel {
+            background: rgba(10, 25, 47, 0.8); border: 1px solid var(--accent);
+            border-radius: 12px; padding: 20px; height: fit-content;
+        }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; color: var(--accent); font-weight: 600; font-size: 13px; }
+        input, select {
+            width: 100%; padding: 10px; background: #0a192f; border: 1px solid var(--border);
+            border-radius: 6px; color: white; box-sizing: border-box;
+        }
+        .file-upload-zone {
+            border: 2px dashed var(--gold); padding: 15px; text-align: center;
+            border-radius: 6px; background: rgba(212, 175, 55, 0.05); cursor: pointer;
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent) 0%, #008ca8 100%);
+            color: white; border: none; padding: 12px; font-weight: bold;
+            border-radius: 6px; cursor: pointer; width: 100%; text-transform: uppercase;
+        }
+        
+        /* Vitrine de Produits */
+        .showcase { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        .product-card {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+            padding: 15px; position: relative; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .badge-new {
+            position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #ff0055, #ff5500);
+            color: white; padding: 3px 8px; font-size: 10px; font-weight: bold; border-radius: 20px; z-index: 5;
+        }
+        .media-container {
+            width: 100%; height: 180px; background: #0a192f; border-radius: 8px;
+            margin-bottom: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;
+        }
+        .media-container img, .media-container video { width: 100%; height: 100%; object-fit: cover; }
+        .product-title { color: white; font-size: 16px; font-weight: bold; margin: 5px 0; }
+        .stars { color: var(--gold); font-size: 12px; margin-bottom: 5px; }
+        .product-price { color: var(--gold); font-size: 18px; font-weight: bold; }
+        .stock-status { font-size: 11px; color: #00ffa3; margin-bottom: 15px; }
+        .btn-buy {
+            background: #233554; color: white; border: 1px solid var(--accent);
+            padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%;
+            transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-buy:hover { background: var(--accent); color: var(--primary); }
+
+        /* Fenêtre Surgissante Sécurisée (Modal) */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 25, 47, 0.85); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center; z-index: 100;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .modal.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--card-bg); border: 2px solid var(--accent);
+            border-radius: 16px; padding: 25px; width: 90%; max-width: 450px; position: relative;
+        }
+        .close-modal { position: absolute; top: 15px; right: 15px; cursor: pointer; color: var(--text); }
+        .btn-whatsapp-final {
+            background: var(--whatsapp); color: white; border: none; padding: 12px;
+            border-radius: 6px; font-weight: bold; width: 100%; cursor: pointer;
+            text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-logo">⚡ REQUINMALL</div>
+    <div class="cart-icon">
+        <i data-lucide="shopping-bag"></i>
+        <div class="cart-count" id="cartCount">0</div>
+    </div>
+</header>
+
+<div class="main-layout">
+    <!-- ESPACE AJOUT PRODUIT -->
+    <div class="admin-panel">
+        <h3 style="color: white; margin-top: 0;">Ajouter un Produit</h3>
+        <form id="productForm">
+            <div class="form-group">
+                <label>Nom du Produit</label>
+                <input type="text" id="pName" placeholder="Ex: Parfum Séduction 24h" required>
+            </div>
+            <div class="form-group">
+                <label>Prix (Ex: 35 000 FCFA)</label>
+                <input type="text" id="pPrice" placeholder="Ex: 35 000 FCFA" required>
+            </div>
+            <div class="form-group">
+                <label>Fichier Média (Image ou Vidéo UGC)</label>
+                <div class="file-upload-zone" onclick="document.getElementById('pFile').click()">
+                    <i data-lucide="upload-cloud" style="color: var(--gold);"></i>
+                    <p id="fileStatus" style="font-size: 12px; margin: 5px 0;">Cliquez pour chercher dans votre appareil</p>
+                    <input type="file" id="pFile" accept="image/*,video/*" style="display:none;" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Mettre en Vitrine</button>
+        </form>
+    </div>
+
+    <!-- VITRINE COMMERCIALE -->
+    <div>
+        <h2 style="margin-top: 0;">Le Catalogue International</h2>
+        <div class="showcase" id="productShowcase"></div>
+    </div>
+</div>
+
+<!-- LE FORMULAIRE WHATSAPP MASQUÉ (MODAL SURGISSANT) -->
+<div class="modal" id="orderModal">
+    <div class="modal-content">
+        <i data-lucide="x" class="close-modal" onclick="closeCheckout()"></i>
+        <h3 style="color: white; margin-top: 0; text-transform: uppercase; color: var(--accent);">Finaliser la Commande</h3>
+        <p style="font-size: 13px; color: #8892b0; margin-bottom: 20px;">💵 Mode de règlement choisi : **Paiement Cash à la Livraison**</p>
+        
+        <div class="form-group">
+            <label>Votre Nom & Prénom</label>
+            <input type="text" id="cName" placeholder="Ex: Jean Marc" required>
+        </div>
+        <div class="form-group">
+            <label>Votre Numéro de Téléphone / WhatsApp</label>
+            <input type="tel" id="cPhone" placeholder="Ex: 05XXXXXXXX" required>
+        </div>
+        <div class="form-group">
+            <label>Lieu de Livraison (Ville, Quartier, Carrefour)</label>
+            <input type="text" id="cLoc" placeholder="Ex: Abidjan, Cocody St Jean" required>
+        </div>
+        <div class="form-group">
+            <label>Date et Heure de livraison souhaitées</label>
+            <input type="text" id="cDate" placeholder="Ex: Demain entre 12h et 15h">
+        </div>
+
+        <button onclick="confirmOrderWhatsApp()" class="btn-whatsapp-final">
+            <i data-lucide="truck"></i> Confirmer sur mon WhatsApp
+        </button>
+    </div>
+</div>
+
+<script>
+    const myWhatsApp = "2250544997627";
+    let products = JSON.parse(localStorage.getItem('requinmall_store_products')) || [];
+    let currentSelectedProduct = null;
+    let base64Media = "";
+
+    // Gérer la recherche de fichiers dans l'appareil
+    document.getElementById('pFile').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('fileStatus').innerText = "📁 Fichier sélectionné : " + file.name;
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                base64Media = reader.result; // Conversion sécurisée pour le stockage permanent
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function renderProducts() {
+        const showcase = document.getElementById('productShowcase');
+        showcase.innerHTML = "";
+        
+        products.forEach((prod, index) => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            const badge = index === 0 ? '<div class="badge-new">🔥 NOUVEAU</div>' : '';
+            
+            // Gestion de l'affichage Image ou Vidéo
+            let mediaTag = `<i data-lucide="box" style="width:40px; height:40px; color:#4c5b75;"></i>`;
+            if (prod.media) {
+                if (prod.media.startsWith("data:video")) {
+                    mediaTag = `<video src="${prod.media}" autoplay loop muted></video>`;
+                } else {
+                    mediaTag = `<img src="${prod.media}" alt="${prod.name}">`;
+                }
+            }
+
+            card.innerHTML = `
+                ${badge}
+                <div class="media-container">${mediaTag}</div>
+                <div>
+                    <div class="product-title">${prod.name}</div>
+                    <div class="stars">⭐⭐⭐⭐⭐ (Avis vérifiés)</div>
+                    <div class="product-price">${prod.price}</div>
+                    <div class="stock-status">🟢 En Stock (Disponible immédiatement)</div>
+                </div>
+                <button onclick="openCheckout(${index})" class="btn-buy">
+                    <i data-lucide="shopping-cart"></i> Acheter maintenant
+                </button>
+            `;
+            showcase.appendChild(card);
+        });
+        document.getElementById('cartCount').innerText = products.length;
+        lucide.createIcons();
+    }
+
+    // Gestion du Formulaire Surgissant (Modal)
+    window.openCheckout = function(index) {
+        currentSelectedProduct = products[index];
+        document.getElementById('orderModal').classList.add('active');
+    }
+
+    window.closeCheckout = function() {
+        document.getElementById('orderModal').classList.remove('active');
+    }
+
+    // Traitement de la commande et envoi du reçu WhatsApp
+    window.confirmOrderWhatsApp = function() {
+        const name = document.getElementById('cName').value;
+        const phone = document.getElementById('cPhone').value;
+        const loc = document.getElementById('cLoc').value;
+        const date = document.getElementById('cDate').value || "Dès que possible";
+
+        if (!name || !phone || !loc) {
+            alert("⚠️ Erreur : Veuillez remplir le nom, le numéro et le lieu pour votre livraison.");
+            return;
+        }
+
+        const text = `Bonjour Requinmall !\n\nJe passe commande avec *Paiement à la Livraison* :\n\n📦 *Produit :* ${currentSelectedProduct.name}\n💰 *Prix :* ${currentSelectedProduct.price}\n\n*📋 Infos Client & Livraison :*\n👤 *Nom :* ${name}\n📞 *WhatsApp :* ${phone}\n📍 *Lieu :* ${loc}\n📅 *Créneau demandé :* ${date}\n\nMerci de me valider la commande.`;
+
+        alert(`📝 REÇU CLIENT GÉNÉRÉ !\n----------------------------------\nBoutique : REQUINMALL\nClient : ${name}\nProduit : ${currentSelectedProduct.name}\nTotal : ${currentSelectedProduct.price}\nPaiement : 💵 À LA LIVRAISON\n\nVotre reçu a bien associé votre numéro (${phone}). Cliquez sur OK pour ouvrir WhatsApp.`);
+
+        window.open(`https://wa.me/${myWhatsApp}?text=${encodeURIComponent(text)}`, '_blank');
+        closeCheckout();
+    }
+
+    // Formulaire d'ajout de produit
+    document.getElementById('productForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const newProduct = {
+            id: Date.now(),
+            name: document.getElementById('pName').value,
+            price: document.getElementById('pPrice').value,
+            media: base64Media,
+            type: base64Media.startsWith("data:video") ? "video" : "image"
+        };
+
+        products.unshift(newProduct);
+        localStorage.setItem('requinmall_store_products', JSON.stringify(products));
+        
+        renderProducts();
+        document.getElementById('productForm').reset();
+        document.getElementById('fileStatus').innerText = "Cliquez pour chercher dans votre appareil";
+        base64Media = "";
+    });
+
+    renderProducts();
+</script>
+</body>
+</html>
